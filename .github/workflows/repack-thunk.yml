@@ -2,16 +2,71 @@ name: Repack thunk
 on:
   workflow_dispatch:
     inputs:
-      username:
-        description: A username passed from the caller workflow
-        default: 'john-doe'
-        required: false
+      vc-ltl:
+        description: 'Specify the version of VC-LTL'
+        default: 'v5.0.1'
+        required: true
+        type: string
+      yy-thunks:
+        description: 'Specify the version of YY-Thunks'
+        default: 'v1.1.1'
+        required: true
+        type: string
+      version:
+        description: 'Specify the output version'
+        default: 'v0.1.0'
+        required: true
         type: string
 
+
 jobs:
-  print-hello:
+  repack-thunk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Print username
-        run: echo The username is ${{ inputs.username }}
+      - name: Download VC-LTL5 Binary
+        id: vc-ltl-download
+        uses: robinraju/release-downloader@v1.10
+        with:
+          repository: 'Chuyu-Team/VC-LTL5'
+          tag: ${{ inputs.vc-ltl }}
+          fileName: '*Binary.7z'
+      
+      - name: Download YY-Thunks Binary
+        id: yy-thunks-download      
+        uses: robinraju/release-downloader@v1.10
+        with:
+          repository: 'Chuyu-Team/YY-Thunks'
+          tag: ${{ inputs.yy-thunks }}
+          fileName: '*Objs.zip'
+      
+      - name: Unpack VC-LTL5 and YY-Thunks
+        run: |
+          7z x ${{ github.workspace }}/${{ fromJson(steps.vc-ltl-download.outputs.downloaded_files)[0] }} -ovc-ltl
+          7z x ${{ github.workspace }}/${{ fromJson(steps.yy-thunks-download.outputs.downloaded_files)[0] }} -oyy-thunks
+
+      - name: Repack XP win32
+        run: |
+          mkdir xp86
+          mv ./vc-ltl/TargetPlatform/5.1.2600.0/lib/Win32/* xp86
+          mv yy-thunks/objs/x86/YY_Thunks_for_WinXP.obj xp86
+          cd xp86
+          7z a ../thunk-i686-pc-winxp-msvc.7z *
+          tar -cvzf ../thunk-i686-pc-winxp-msvc.tar.gz *
+          cd ..
+
+      - name: Set release date
+        run: |
+          echo "RELEASE_DATE=$(date --rfc-3339=date)" >> ${GITHUB_ENV}
+      
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'thunk-*[.7z][.tar.gz]'
+          body: |
+            # ${{ env.RELEASE_DATE }}
+             - VC-LTL5: ${{ inputs.vc-ltl }}
+             - YY-Thunks: ${{ inputs.yy-thunks }}
+      
