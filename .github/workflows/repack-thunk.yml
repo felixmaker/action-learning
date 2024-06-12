@@ -59,10 +59,10 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: 'thunk-*[.7z][.tar.gz]'
+          artifacts: 'thunk-*.7z,thunk-*.tar.gz'
           tag: ${{ env.RELEASE_DATE }}
-          body: |
-            # ${{ env.RELEASE_DATE }}
+          body: |        
+            Repackage information    
              - VC-LTL5: ${{ inputs.vc-ltl }}
              - YY-Thunks: ${{ inputs.yy-thunks }}
       
