@@ -4,17 +4,12 @@ on:
     inputs:
       vc-ltl:
         description: 'Specify the version of VC-LTL'
-        default: 'v5.0.1'
+        default: 'v5.1.1-Beta2'
         required: true
         type: string
       yy-thunks:
         description: 'Specify the version of YY-Thunks'
         default: 'v1.1.1'
-        required: true
-        type: string
-      version:
-        description: 'Specify the output version'
-        default: 'v0.1.0'
         required: true
         type: string
 
@@ -44,8 +39,8 @@ jobs:
       
       - name: Unpack VC-LTL5 and YY-Thunks
         run: |
-          7z x ${{ github.workspace }}/${{ fromJson(steps.vc-ltl-download.outputs.downloaded_files)[0] }} -ovc-ltl
-          7z x ${{ github.workspace }}/${{ fromJson(steps.yy-thunks-download.outputs.downloaded_files)[0] }} -oyy-thunks
+          7z x ${{ fromJson(steps.vc-ltl-download.outputs.downloaded_files)[0] }} -ovc-ltl
+          7z x ${{ fromJson(steps.yy-thunks-download.outputs.downloaded_files)[0] }} -oyy-thunks
 
       - name: Repack XP win32
         run: |
