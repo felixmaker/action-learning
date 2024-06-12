@@ -60,7 +60,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: 'thunk-*[.7z][.tar.gz]'
-          tag: v0.1.0
+          tag: ${{ env.RELEASE_DATE }}
           body: |
             # ${{ env.RELEASE_DATE }}
              - VC-LTL5: ${{ inputs.vc-ltl }}
